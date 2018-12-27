@@ -1,0 +1,32 @@
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+##Top 10 europeans stations with maximum snow cover at the top on the 26 of December 2018
+```{r, message=FALSE}
+library(leaflet)
+library(dplyr)
+
+df <- data.frame(
+    station = c("Andermatt", "Sölden", "Madesimo", "Engelberg", "Pontedilegno - Tonale", "Ghiacciaio Presena", "St Anton", 
+                "Zermat", "Serre Chevalier", "Stubaier Gletscher"),
+    lat = c(46.6339116, 46.9654937, 46.4366898, 46.8200266, 46.2600505, 46.2546772, 47.1281212, 46.0238713, 44.933195, 47.0106291),
+    lng = c(8.5935627, 11.0076232, 9.3580308, 8.4069918, 10.508131, 10.508349, 10.2630841, 7.7477502, 6.586797, 11.1550482),
+    snow = c(450, 297, 250, 230, 230, 230, 225, 200, 200, 200),
+    country = c("Switzerland", "Austria", "Italy", "Switzerland", "Italy", "Italy", "Austria", "Switzerland", "France", "Austria")
+)
+
+df <- df %>% mutate(color = ifelse(grepl("^S", country), "red", NA)) %>% mutate(color = ifelse(grepl("^A", country), "blue", color)) %>% 
+    mutate(color = ifelse(grepl("^I", country), "green", color)) %>% mutate(color = ifelse(grepl("^F", country), "purple", color))
+
+label = c("Switzerland", "Austria", "Italy", "France")
+
+df %>% 
+    leaflet() %>% 
+    addTiles() %>% 
+    addCircleMarkers(weight = 2, radius = sqrt(df$snow), popup = paste(df$station, ", ", df$snow, " cm", sep = ""), color = df$color) %>% 
+    addLegend(labels = label, colors = c("red", "blue", "green", "purple")) %>% 
+    addControl("Snow", "topleft", className="map-title")
+
+```
+
